@@ -14,7 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
+from messengerapi.messages.views import MessageList
 
 urlpatterns = [
-
+    path('messages/', MessageList.as_view()),
 ]
