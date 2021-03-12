@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'messengerapi.messages',
+    'messengerapi.users',
 ]
 
 MIDDLEWARE = [

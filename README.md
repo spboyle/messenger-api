@@ -1,5 +1,9 @@
 # Messenger API
 
+## Development
+
+    python manage.py loaddata messengerapi/fixtures/data.json
+
 ## Resources
 
 ### Messages

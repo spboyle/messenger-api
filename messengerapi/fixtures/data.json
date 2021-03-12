@@ -1,0 +1,58 @@
+[
+  {
+    "model": "messages.message",
+    "pk": 1,
+    "fields": {
+      "sender": 1,
+      "recipient": 2,
+      "created": "2021-02-01T04:29:46Z",
+      "text": "Hello Ralph!"
+    }
+  },
+  {
+    "model": "messages.message",
+    "pk": 2,
+    "fields": {
+      "sender": 1,
+      "recipient": 2,
+      "created": "2021-02-17T04:29:46Z",
+      "text": "Come in Ralph!"
+    }
+  },
+  {
+    "model": "messages.message",
+    "pk": 3,
+    "fields": {
+      "sender": 1,
+      "recipient": 2,
+      "created": "2021-03-11T04:29:46Z",
+      "text": "... Ralph?"
+    }
+  },
+  {
+    "model": "messages.message",
+    "pk": 4,
+    "fields": {
+      "sender": 2,
+      "recipient": 1,
+      "created": "2021-03-12T04:29:46Z",
+      "text": "Oh, hi!"
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "email": "susan.sanders@abc.com",
+      "name": "Susan Sanders"
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+      "email": "ralph.reynolds@abc.com",
+      "name": "Ralph Reynolds"
+    }
+  }
+]

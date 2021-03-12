@@ -2,17 +2,18 @@ from django.core import serializers
 from django.http import JsonResponse
 from django.views.generic import ListView
 
-from messengerapi.messages.models import Message
+from messengerapi.users.models import User
 
 
-class MessageList(ListView):
-    model = Message
+class UserList(ListView):
+    model = User
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        messages = serializers.serialize('json', queryset)
+        users = serializers.serialize('json', queryset)
         response = {
-            'data': messages,
-            'count': len(messages)
+            'data': users,
+            'count': len(users)
         }
+
         return JsonResponse(response, status=200)
