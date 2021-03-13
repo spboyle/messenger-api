@@ -33,7 +33,7 @@ class MessageListTestCase(TestCase):
         actual_as_json = actual_data['data'][0]
         self.assertEqual(expected_obj.sender.name, actual_as_json['sender'])
         self.assertEqual(expected_obj.recipient.name, actual_as_json['recipient'])
-        expected_time = expected_obj.created.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        expected_time = expected_obj.created.strftime('%Y-%m-%dT%H:%M:%SZ')
         self.assertEqual(expected_time, actual_as_json['created'])
 
     def test_get_multiple(self):
@@ -48,7 +48,6 @@ class MessageListTestCase(TestCase):
         response = self.client.get(reverse('messages:list'))
         actual_data = json.loads(response.content)
 
-        print(actual_data)
         self.assertEqual(3, len(actual_data['data']))
         self.assertEqual(3, actual_data['count'])
 

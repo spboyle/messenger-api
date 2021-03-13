@@ -26,3 +26,6 @@ class MessageList(ListView):
             'count': len(messages)
         }
         return JsonResponse(response, status=200)
+
+    def get_queryset(self):
+        return self.model.objects.order_by('-created')
