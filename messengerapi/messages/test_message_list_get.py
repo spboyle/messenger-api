@@ -9,9 +9,10 @@ from django.utils import timezone
 from messengerapi.messages.views import MessageList
 from messengerapi.messages.factories import MessageFactory
 from messengerapi.users.factories import UserFactory
+from messengerapi.users.models import User
 
 
-class MessageListTestCase(TestCase):
+class MessageListGetTestCase(TestCase):
     def test_get_empty(self):
         """
         Should return empty data with count=0 when no messages are present
@@ -33,8 +34,14 @@ class MessageListTestCase(TestCase):
         self.assertEqual(1, len(actual_data['data']))
 
         actual_as_json = actual_data['data'][0]
-        self.assertEqual(expected_obj.sender.name, actual_as_json['sender'])
-        self.assertEqual(expected_obj.recipient.name, actual_as_json['recipient'])
+        sender = actual_as_json['sender']
+        recipient = actual_as_json['recipient']
+        self.assertEqual(expected_obj.sender.name, sender['name'])
+        self.assertEqual(expected_obj.sender.email, sender['email'])
+        self.assertEqual(expected_obj.sender.id, sender['id'])
+        self.assertEqual(expected_obj.recipient.name, recipient['name'])
+        self.assertEqual(expected_obj.recipient.email, recipient['email'])
+        self.assertEqual(expected_obj.recipient.id, recipient['id'])
         expected_time = expected_obj.created.strftime('%Y-%m-%dT%H:%M:%SZ')
         self.assertEqual(expected_time, actual_as_json['created'])
 
@@ -54,8 +61,8 @@ class MessageListTestCase(TestCase):
         self.assertEqual(3, actual_data['count'])
 
         for expected_obj, actual_as_json in zip(expected_data_as_objects, actual_data['data']):
-            self.assertEqual(expected_obj.sender.name, actual_as_json['sender'])
-            self.assertEqual(expected_obj.recipient.name, actual_as_json['recipient'])
+            self.assertEqual(expected_obj.sender.name, actual_as_json['sender']['name'])
+            self.assertEqual(expected_obj.recipient.name, actual_as_json['recipient']['name'])
 
     def test_get_from_date_query_param_default(self):
         """
@@ -70,8 +77,8 @@ class MessageListTestCase(TestCase):
         self.assertEqual(1, actual_data['count'])
 
         actual_as_json = actual_data['data'][0]
-        self.assertEqual(recent_message.sender.name, actual_as_json['sender'])
-        self.assertEqual(recent_message.recipient.name, actual_as_json['recipient'])
+        self.assertEqual(recent_message.sender.name, actual_as_json['sender']['name'])
+        self.assertEqual(recent_message.recipient.name, actual_as_json['recipient']['name'])
 
     def test_get_from_date_query_param_present(self):
         """
@@ -92,8 +99,8 @@ class MessageListTestCase(TestCase):
         self.assertEqual(1, actual_data['count'])
 
         actual_as_json = actual_data['data'][0]
-        self.assertEqual(recent_message.sender.name, actual_as_json['sender'])
-        self.assertEqual(recent_message.recipient.name, actual_as_json['recipient'])
+        self.assertEqual(recent_message.sender.name, actual_as_json['sender']['name'])
+        self.assertEqual(recent_message.recipient.name, actual_as_json['recipient']['name'])
 
     def test_get_from_date_query_param_invalid(self):
         """
@@ -142,3 +149,39 @@ class MessageListTestCase(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(400, response.status_code)
+
+    def test_get_sender_query_param_present(self):
+        """
+        Should filter by the sender query param when present
+        """
+        expected_sender = MessageFactory.create_batch(3)[0].sender
+        query_params = urlencode({'senderId': expected_sender.id})
+
+        url = '{}?{}'.format(reverse('messages:list'), query_params)
+        response = self.client.get(url)
+        actual_data = json.loads(response.content)
+
+        self.assertEqual(1, len(actual_data['data']))
+        self.assertEqual(1, actual_data['count'])
+
+        actual_sender = actual_data['data'][0]['sender']
+        self.assertEqual(expected_sender.email, actual_sender['email'])
+        self.assertEqual(expected_sender.name, actual_sender['name'])
+
+    def test_get_recipient_query_param_present(self):
+        """
+        Should filter by the recipient query param when present
+        """
+        expected_recipient = MessageFactory.create_batch(3)[0].recipient
+        query_params = urlencode({'recipientId': expected_recipient.id})
+
+        url = '{}?{}'.format(reverse('messages:list'), query_params)
+        response = self.client.get(url)
+        actual_data = json.loads(response.content)
+
+        self.assertEqual(1, len(actual_data['data']))
+        self.assertEqual(1, actual_data['count'])
+
+        actual_recipient = actual_data['data'][0]['recipient']
+        self.assertEqual(expected_recipient.email, actual_recipient['email'])
+        self.assertEqual(expected_recipient.name, actual_recipient['name'])

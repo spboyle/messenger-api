@@ -1,27 +1,35 @@
 import datetime
+import json
 
-from django.core import serializers
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.db.utils import IntegrityError
 from django.forms.models import model_to_dict
 from django.http import HttpResponseBadRequest, JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import ListView
 
 from messengerapi.messages.models import Message
+from messengerapi.users.models import User
 
 
 class MessageList(ListView):
     model = Message
 
-    @staticmethod
-    def serialize(message):
-        serialized_message = model_to_dict(message)
-        serialized_message.update({
-            'sender': message.sender.name,
-            'recipient': message.recipient.name
-        })
-        return serialized_message
+    ################################
+    # POST /messages/
+    ################################
+    def post(self, request, *args, **kwargs):
+        try:
+            message = Message.objects.create(**self.post_data)
+        except ValidationError as e:
+            return JsonResponse({'error': e.message}, status=400)
 
+        return JsonResponse(model_to_dict(message), status=201)
+
+    ################################
+    # GET /messages/
+    ################################
     def get(self, request, *args, **kwargs):
         try:
             queryset = self.get_queryset()
@@ -36,11 +44,32 @@ class MessageList(ListView):
         return JsonResponse(response, status=200)
 
     def get_queryset(self):
-        return self.model.objects.filter(
-            created__gt=self.from_date
-        ).order_by('-created')[:self.limit]
+        return self.model.objects.filter(**self.query_params).order_by('-created')[:self.limit]
 
+    @staticmethod
+    def serialize(message):
+        serialized_message = model_to_dict(message)
+        serialized_message.update({
+            'sender': model_to_dict(message.sender),
+            'recipient': model_to_dict(message.recipient),
+        })
+        return serialized_message
+
+    ################################
     # Query params
+    ################################
+    @property
+    def query_params(self):
+        if not hasattr(self, '_query_params'):
+            self._query_params = {'created__gt': self.from_date}
+
+            if 'senderId' in self.request.GET:
+                self._query_params['sender__id'] = self.request.GET['senderId']
+            if 'recipientId' in self.request.GET:
+                self._query_params['recipient__id'] = self.request.GET['recipientId']
+
+        return self._query_params
+
     @property
     def from_date(self):
         query_param = self.request.GET.get('fromDate')
@@ -63,3 +92,22 @@ class MessageList(ListView):
             raise ValidationError(f'Limit outside of bounds [1, 9999]: {query_param}')
 
         return query_param
+
+    ################################
+    # Post Data
+    ################################
+    @property
+    def post_data(self):
+        post_data = json.loads(self.request.body)
+        MessageList.check_user(post_data.get('sender'))
+        MessageList.check_user(post_data.get('recipient'))
+        post_data['sender_id'] = post_data.pop('sender')
+        post_data['recipient_id'] = post_data.pop('recipient')
+        return post_data
+
+    @staticmethod
+    def check_user(user_id):
+        try:
+            User.objects.get(id=user_id)
+        except ObjectDoesNotExist:
+            raise ValidationError(f'User {user_id} not found')

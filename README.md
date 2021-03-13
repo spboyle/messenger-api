@@ -35,7 +35,5 @@ Default sort by date descending, default limit 100 / 30 days
 #### DELETE /messages/:messageId
 
 ## TODO
-1. Create message
-  * Need to consider if/how users are created
-2. Swagger doc
-3. Dockerize
+1. Swagger doc
+2. Dockerize
