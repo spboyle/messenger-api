@@ -10,7 +10,7 @@ from messengerapi.messages.views import MessageList
 from messengerapi.messages.factories import MessageFactory
 from messengerapi.users.factories import UserFactory
 from messengerapi.users.models import User
-from messengerapi.settings import ISO_FORMAT
+from django.conf import settings
 
 
 class MessageListGetTestCase(TestCase):
@@ -91,7 +91,7 @@ class MessageListGetTestCase(TestCase):
 
         # Manually convert to isoformat python datetime.isoformat() returns with offset and/or
         # decimals in the seconds place
-        query_params = urlencode({'fromDate': from_date.strftime(ISO_FORMAT)})
+        query_params = urlencode({'fromDate': from_date.strftime(settings.ISO_FORMAT)})
 
         url = '{}?{}'.format(reverse('messages:list'), query_params)
         response = self.client.get(url)

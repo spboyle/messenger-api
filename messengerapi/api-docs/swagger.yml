@@ -3,11 +3,18 @@ info:
   version: 1.0.0
   title: Messenger API
   description: A simple API that allows the creation of users and messages between users
+servers:
+  - url: http://localhost:8000
+tags:
+  - name: Messages
+  - name: Users
 paths:
   /messages:
     get:
       description: Returns list of messages
       operationId: getMessages
+      tags:
+        - Messages
       parameters:
         - name: fromDate
           in: query
@@ -54,6 +61,8 @@ paths:
     post:
       description: Creates a new message between two users.
       operationId: createMessage
+      tags:
+        - Messages
       requestBody:
         description: Message to create
         required: true
@@ -79,6 +88,8 @@ paths:
     get:
       description: Returns a list of users
       operationId: getUsers
+      tags:
+        - Users
       responses:
         '200':
           description: List of users
@@ -95,6 +106,8 @@ paths:
     post:
       description: Creates a new User
       operationId: createUser
+      tags:
+        - Users
       requestBody:
         description: User to create
         required: true
@@ -144,13 +157,13 @@ components:
           type: integer
         sender:
           $ref: '#/components/schemas/User'
-          recipient:
-            $ref: '#/components/schemas/User'
-          created:
-            type: string
-            format: date-time
-          text:
-            type: string
+        recipient:
+          $ref: '#/components/schemas/User'
+        created:
+          type: string
+          format: date-time
+        text:
+          type: string
 
     NewMessage:
       type: object

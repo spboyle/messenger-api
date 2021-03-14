@@ -10,7 +10,7 @@ from django.views.generic import ListView
 
 from messengerapi.messages.models import Message
 from messengerapi.users.models import User
-from messengerapi.settings import ISO_FORMAT
+from django.conf import settings
 
 
 class MessageList(ListView):
@@ -75,7 +75,7 @@ class MessageList(ListView):
         query_param = self.request.GET.get('fromDate')
         if query_param:
             try:
-                my_value = timezone.make_aware(datetime.datetime.strptime(query_param, ISO_FORMAT))
+                my_value = timezone.make_aware(datetime.datetime.strptime(query_param, settings.ISO_FORMAT))
                 return my_value
             except (ValueError, OverflowError):
                 raise ValidationError(f'Unacceptable ISO format: {query_param}')

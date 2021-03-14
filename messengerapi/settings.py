@@ -25,12 +25,11 @@ SECRET_KEY = 'qb@#i5zd-i3k^jojfa1efkm-p3%)cj=t#^m))qic-e1hk^=u$$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# SECURITY WARNING: Be more restrictive in production!
 ALLOWED_HOSTS = [
     '*'
 ]
 
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
@@ -39,6 +38,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'messengerapi.middleware.LocalCORSMiddleware',
     'django.middleware.common.CommonMiddleware',
 ]
 

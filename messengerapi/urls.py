@@ -1,7 +1,7 @@
-from django.urls import include, path
+from django.urls import include, re_path
 
 
 urlpatterns = [
-    path('messages/', include('messengerapi.messages.urls')),
-    path('users/', include('messengerapi.users.urls')),
+    re_path('messages/?', include('messengerapi.messages.urls')),
+    re_path('users/?', include('messengerapi.users.urls')),
 ]
