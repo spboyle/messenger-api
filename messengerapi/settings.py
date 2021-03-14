@@ -77,3 +77,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# Because python datetime tends to use offest +00:00:00 and/or
+# append decimals to to the seconds value, use our own iso string format:
+# Example: 2017-07-21T17:32:28Z
+ISO_FORMAT = '%Y-%m-%dT%H:%M:%SZ'

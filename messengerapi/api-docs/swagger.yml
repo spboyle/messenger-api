@@ -1,0 +1,210 @@
+openapi: "3.0.3"
+info:
+  version: 1.0.0
+  title: Messenger API
+  description: A simple API that allows the creation of users and messages between users
+paths:
+  /messages:
+    get:
+      description: Returns list of messages
+      operationId: getMessages
+      parameters:
+        - name: fromDate
+          in: query
+          description: |
+            How far back to look for messages, in ISO 8601 format (default 30 days ago)
+          required: false
+          style: form
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          description: Maximum number of results to return (default 100)
+          required: false
+          schema:
+            type: integer
+        - name: senderId
+          in: query
+          description: Filter messages by sender
+          required: false
+          style: form
+          schema:
+            type: integer
+        - name: recipientId
+          in: query
+          description: Filter messages by recipient
+          required: false
+          style: form
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResults'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Creates a new message between two users.
+      operationId: createMessage
+      requestBody:
+        description: Message to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMessage'
+      responses:
+        '200':
+          description: Message response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users:
+    get:
+      description: Returns a list of users
+      operationId: getUsers
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResults'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      description: Creates a new User
+      operationId: createUser
+      requestBody:
+        description: User to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+      responses:
+        '200':
+          description: User response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    MessageResults:
+      type: object
+      required:
+        - data
+        - count
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        count:
+          type: integer
+
+    Message:
+      type: object
+      required:
+        - id
+        - sender
+        - recipient
+        - created
+        - text
+      properties:
+        id:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/User'
+          recipient:
+            $ref: '#/components/schemas/User'
+          created:
+            type: string
+            format: date-time
+          text:
+            type: string
+
+    NewMessage:
+      type: object
+      required:
+        - text
+        - senderId
+        - recipientId
+      properties:
+        text:
+          type: string
+        senderId:
+          type: integer
+        recipientId:
+          type: integer
+
+    UserResults:
+      type: object
+      required:
+        - data
+        - count
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        count:
+          type: integer
+
+    User:
+      allOf:
+        - $ref: '#/components/schemas/NewUser'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: integer
+
+    NewUser:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string

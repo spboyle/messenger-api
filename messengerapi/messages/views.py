@@ -5,12 +5,12 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from django.forms.models import model_to_dict
 from django.http import HttpResponseBadRequest, JsonResponse
-from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import ListView
 
 from messengerapi.messages.models import Message
 from messengerapi.users.models import User
+from messengerapi.settings import ISO_FORMAT
 
 
 class MessageList(ListView):
@@ -25,7 +25,7 @@ class MessageList(ListView):
         except ValidationError as e:
             return JsonResponse({'error': e.message}, status=400)
 
-        return JsonResponse(model_to_dict(message), status=201)
+        return JsonResponse(self.serialize(message), status=201)
 
     ################################
     # GET /messages/
@@ -75,9 +75,10 @@ class MessageList(ListView):
         query_param = self.request.GET.get('fromDate')
         if query_param:
             try:
-                return datetime.datetime.fromtimestamp(int(query_param), timezone.utc)
+                my_value = timezone.make_aware(datetime.datetime.strptime(query_param, ISO_FORMAT))
+                return my_value
             except (ValueError, OverflowError):
-                raise ValidationError(f'Unacceptable UTC timestamp: {query_param}')
+                raise ValidationError(f'Unacceptable ISO format: {query_param}')
 
         return timezone.now() - datetime.timedelta(days=30)
 
@@ -99,10 +100,10 @@ class MessageList(ListView):
     @property
     def post_data(self):
         post_data = json.loads(self.request.body)
-        MessageList.check_user(post_data.get('sender'))
-        MessageList.check_user(post_data.get('recipient'))
-        post_data['sender_id'] = post_data.pop('sender')
-        post_data['recipient_id'] = post_data.pop('recipient')
+        MessageList.check_user(post_data.get('senderId'))
+        MessageList.check_user(post_data.get('recipientId'))
+        post_data['sender_id'] = post_data.pop('senderId')
+        post_data['recipient_id'] = post_data.pop('recipientId')
         return post_data
 
     @staticmethod

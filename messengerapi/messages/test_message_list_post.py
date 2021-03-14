@@ -19,8 +19,8 @@ class MessageListPostTestCase(TestCase):
         """
         sender = UserFactory()
         data = {
-            'sender': sender.id,
-            'recipient': 999,
+            'senderId': sender.id,
+            'recipientId': 999,
             'text': '...'
         }
 
@@ -38,8 +38,8 @@ class MessageListPostTestCase(TestCase):
         sender, recipient = UserFactory(), UserFactory()
 
         data = {
-            'sender': sender.id,
-            'recipient': recipient.id,
+            'senderId': sender.id,
+            'recipientId': recipient.id,
             'text': 'Hello World!',
         }
 
@@ -60,8 +60,8 @@ class MessageListPostTestCase(TestCase):
         sender, recipient = UserFactory(), UserFactory()
 
         data = {
-            'sender': sender.id,
-            'recipient': recipient.id,
+            'senderId': sender.id,
+            'recipientId': recipient.id,
             'text': 'Hello World!',
         }
 
@@ -73,6 +73,6 @@ class MessageListPostTestCase(TestCase):
         actual_data = json.loads(response.content)
 
         self.assertEqual(201, response.status_code)
-        self.assertEqual(data['sender'], actual_data['sender'])
-        self.assertEqual(data['recipient'], actual_data['recipient'])
+        self.assertEqual(data['senderId'], actual_data['sender']['id'])
+        self.assertEqual(data['recipientId'], actual_data['recipient']['id'])
         self.assertEqual(data['text'], actual_data['text'])
